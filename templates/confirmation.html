@@ -1,0 +1,473 @@
+
+{% extends "base.html" %}
+
+{% block title %}Booking Confirmed | CloudBus{% endblock %}
+
+{% block content %}
+
+<style>
+
+    body {
+        background: #f4f7fb;
+    }
+
+    .ticket {
+        max-width: 900px;
+        margin: 35px auto;
+        background: white;
+        border-radius: 22px;
+        overflow: hidden;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.10);
+    }
+
+    .ticket-header {
+        background: linear-gradient(135deg, #0d6efd, #084298);
+        color: white;
+        padding: 35px 25px;
+    }
+
+    .success-icon {
+        width: 70px;
+        height: 70px;
+        margin: auto;
+        border-radius: 50%;
+        background: white;
+        color: #198754;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 42px;
+        font-weight: bold;
+    }
+
+    .ticket-body {
+        padding: 35px;
+    }
+
+    .booking-reference {
+        background: #f8f9fa;
+        border-radius: 14px;
+        padding: 18px;
+    }
+
+    .booking-id {
+        font-family: monospace;
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: 1px;
+    }
+
+    .route {
+        font-size: 26px;
+        font-weight: 800;
+    }
+
+    .route-arrow {
+        color: #0d6efd;
+        margin: 0 18px;
+    }
+
+    .info-box {
+        background: #f8f9fa;
+        border-radius: 14px;
+        padding: 18px;
+        height: 100%;
+    }
+
+    .info-label {
+        color: #6c757d;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+    }
+
+    .info-value {
+        font-size: 17px;
+        font-weight: 700;
+    }
+
+    .seat-badge {
+        display: inline-block;
+        background: #198754;
+        color: white;
+        padding: 9px 14px;
+        border-radius: 9px;
+        margin: 4px;
+        font-weight: 700;
+    }
+
+    .fare-box {
+        background: #e8f3ff;
+        border-radius: 15px;
+        padding: 22px;
+    }
+
+    .total-fare {
+        font-size: 32px;
+        font-weight: 800;
+        color: #0d6efd;
+    }
+
+    .ticket-footer {
+        border-top: 2px dashed #dee2e6;
+        padding: 25px 35px;
+        background: #fafafa;
+    }
+
+    .status-confirmed {
+        background: #198754;
+        font-size: 13px;
+        padding: 8px 14px;
+    }
+
+    @media (max-width: 576px) {
+
+        .ticket {
+            margin: 15px auto;
+            border-radius: 15px;
+        }
+
+        .ticket-body {
+            padding: 22px;
+        }
+
+        .ticket-footer {
+            padding: 22px;
+        }
+
+        .route {
+            font-size: 20px;
+        }
+
+        .route-arrow {
+            margin: 0 8px;
+        }
+
+        .total-fare {
+            font-size: 25px;
+        }
+
+    }
+
+    @media print {
+
+        body {
+            background: white !important;
+        }
+
+        .navbar,
+        .action-buttons,
+        .no-print {
+            display: none !important;
+        }
+
+        .ticket {
+            margin: 0;
+            max-width: 100%;
+            box-shadow: none;
+            border: 1px solid #ddd;
+        }
+
+    }
+
+</style>
+
+
+<div class="ticket">
+
+    <!-- HEADER -->
+
+    <div class="ticket-header text-center">
+
+        <div class="success-icon mb-3">
+            ✓
+        </div>
+
+        <h2 class="fw-bold mb-1">
+            Booking Confirmed!
+        </h2>
+
+        <p class="mb-0">
+            Your CloudBus journey has been successfully booked.
+        </p>
+
+    </div>
+
+
+    <!-- BODY -->
+
+    <div class="ticket-body">
+
+
+        <!-- BOOKING REFERENCE -->
+
+        <div class="booking-reference text-center mb-4">
+
+            <div class="text-muted small">
+                BOOKING REFERENCE
+            </div>
+
+            <div class="booking-id mt-1">
+                CB{{ "%05d"|format(booking["id"]) }}
+            </div>
+
+            {% if booking["booking_status"] == "Confirmed" %}
+
+                <span class="badge status-confirmed mt-2">
+                    ✓ Confirmed
+                </span>
+
+            {% else %}
+
+                <span class="badge bg-secondary mt-2">
+                    {{ booking["booking_status"] }}
+                </span>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- ROUTE -->
+
+        <div class="text-center mb-4">
+
+            <div class="text-muted small mb-2">
+                JOURNEY
+            </div>
+
+            <div class="route">
+
+                {{ booking["source"] }}
+
+                <span class="route-arrow">
+                    →
+                </span>
+
+                {{ booking["destination"] }}
+
+            </div>
+
+        </div>
+
+
+        <hr class="mb-4">
+
+
+        <!-- DETAILS -->
+
+        <div class="row g-3">
+
+
+            <div class="col-md-6">
+
+                <div class="info-box">
+
+                    <div class="info-label">
+                        Passenger
+                    </div>
+
+                    <div class="info-value">
+                        👤 {{ booking["passenger_name"] }}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-6">
+
+                <div class="info-box">
+
+                    <div class="info-label">
+                        Bus
+                    </div>
+
+                    <div class="info-value">
+                        🚌 {{ booking["bus_number"] }}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-6">
+
+                <div class="info-box">
+
+                    <div class="info-label">
+                        Number of Seats
+                    </div>
+
+                    <div class="info-value">
+                        💺 {{ booking["seats"] }}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-6">
+
+                <div class="info-box">
+
+                    <div class="info-label">
+                        Fare Per Seat
+                    </div>
+
+                    <div class="info-value">
+                        ₹{{ "%.2f"|format(booking["fare"]) }}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- SELECTED SEATS -->
+
+        <div class="mt-4">
+
+            <h6 class="fw-bold mb-3">
+                🎫 Selected Seats
+            </h6>
+
+            {% if booking["seat_numbers"] %}
+
+                <div>
+
+                    {% for seat in booking["seat_numbers"].split(",") %}
+
+                        <span class="seat-badge">
+                            Seat {{ "%02d"|format(seat|int) }}
+                        </span>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="alert alert-warning">
+                    Seat information unavailable.
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- TOTAL FARE -->
+
+        <div class="fare-box mt-4">
+
+            <div class="row align-items-center">
+
+                <div class="col">
+
+                    <div class="text-muted">
+                        Total Fare
+                    </div>
+
+                    <div class="small text-muted mt-1">
+
+                        {{ booking["seats"] }} seat(s)
+                        ×
+                        ₹{{ "%.2f"|format(booking["fare"]) }}
+
+                    </div>
+
+                </div>
+
+                <div class="col-auto">
+
+                    <div class="total-fare">
+
+                        ₹{{ "%.2f"|format(booking["total_fare"]) }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- TRAVEL INFORMATION -->
+
+        <div class="alert alert-info mt-4 mb-0">
+
+            <strong>Travel Information</strong>
+
+            <br>
+
+            Please keep your booking reference
+            <strong>
+                CB{{ "%05d"|format(booking["id"]) }}
+            </strong>
+            with you while travelling.
+
+        </div>
+
+
+    </div>
+
+
+    <!-- FOOTER -->
+
+    <div class="ticket-footer">
+
+        <div class="row align-items-center">
+
+            <div class="col-md-6 mb-3 mb-md-0">
+
+                <div class="text-muted small">
+                    CloudBus Booking
+                </div>
+
+                <strong>
+                    Safe • Simple • Reliable
+                </strong>
+
+            </div>
+
+
+            <div class="col-md-6">
+
+                <div class="action-buttons d-flex gap-2 justify-content-md-end">
+
+                    <button
+                        onclick="window.print()"
+                        class="btn btn-primary">
+
+                        🖨️ Print Ticket
+
+                    </button>
+
+                    <a
+                        href="{{ url_for('my_bookings') }}"
+                        class="btn btn-outline-primary">
+
+                        My Bookings
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

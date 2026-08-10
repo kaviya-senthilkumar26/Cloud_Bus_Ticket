@@ -1,0 +1,328 @@
+{% extends "base.html" %}
+
+{% block title %}
+CloudBus | Smarter Bus Booking
+{% endblock %}
+
+{% block content %}
+
+<!-- ================= HERO ================= -->
+
+<section class="hero-section">
+
+
+<div class="container hero-content">
+
+    <div class="row align-items-center">
+
+        <div class="col-lg-8">
+
+            <div class="hero-badge">
+                🚌 Your journey, made simpler
+            </div>
+
+            <h1 class="hero-title">
+
+                Travel smarter.
+                <span>Book better.</span>
+
+            </h1>
+
+            <p class="hero-subtitle">
+
+                Find your bus, choose your preferred seats
+                and book your journey in just a few clicks.
+
+                CloudBus makes bus booking simple,
+                secure and stress-free.
+
+            </p>
+
+            <div class="d-flex flex-wrap gap-3 mt-4">
+
+                {% if session.get("user_id") %}
+
+                    <a
+                        href="{{ url_for('buses') }}"
+                        class="btn btn-light btn-lg px-4">
+
+                        Find a Bus →
+
+                    </a>
+
+                {% else %}
+
+                    <a
+                        href="{{ url_for('register') }}"
+                        class="btn btn-light btn-lg px-4">
+
+                        Get Started →
+
+                    </a>
+
+                    <a
+                        href="{{ url_for('login') }}"
+                        class="btn btn-outline-light btn-lg px-4">
+
+                        Sign In
+
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <div class="col-lg-4 d-none d-lg-block text-center">
+
+            <div style="
+                font-size:150px;
+                filter:drop-shadow(0 20px 25px rgba(0,0,0,.2));
+            ">
+
+                🚌
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+</section>
+
+<!-- ================= SEARCH ================= -->
+
+{% if session.get("user_id") %}
+
+<div class="container">
+
+
+<div class="search-card">
+
+    <div class="mb-3">
+
+        <h5 class="fw-bold mb-1">
+            Where are you going?
+        </h5>
+
+        <p class="text-muted small mb-0">
+            Search available buses by route.
+        </p>
+
+    </div>
+
+
+    <form
+        method="GET"
+        action="{{ url_for('buses') }}">
+
+        <div class="row g-3 align-items-end">
+
+            <div class="col-md-5">
+
+                <label class="search-label">
+                    FROM
+                </label>
+
+                <input
+                    type="text"
+                    name="source"
+                    class="form-control search-input"
+                    placeholder="e.g. Chennai">
+
+            </div>
+
+
+            <div class="col-md-5">
+
+                <label class="search-label">
+                    TO
+                </label>
+
+                <input
+                    type="text"
+                    name="destination"
+                    class="form-control search-input"
+                    placeholder="e.g. Madurai">
+
+            </div>
+
+
+            <div class="col-md-2">
+
+                <button
+                    type="submit"
+                    class="search-btn w-100">
+
+                    Search
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+</div>
+
+{% endif %}
+
+<!-- ================= FEATURES ================= -->
+
+<section class="section">
+
+
+<div class="container">
+
+    <div class="text-center mb-5">
+
+        <h2 class="section-title">
+            Everything you need for a better journey
+        </h2>
+
+        <p class="section-subtitle">
+            A simple booking experience from start to finish.
+        </p>
+
+    </div>
+
+
+    <div class="row g-4">
+
+        <div class="col-md-4">
+
+            <div class="feature-card">
+
+                <div class="feature-icon">
+                    🔎
+                </div>
+
+                <h5>
+                    Find Your Bus
+                </h5>
+
+                <p>
+                    Search buses by source and destination
+                    and quickly find the right route for you.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <div class="feature-card">
+
+                <div class="feature-icon">
+                    💺
+                </div>
+
+                <h5>
+                    Choose Your Seat
+                </h5>
+
+                <p>
+                    View the real-time seat layout and select
+                    the seats you want before confirming your booking.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <div class="feature-card">
+
+                <div class="feature-icon">
+                    🎫
+                </div>
+
+                <h5>
+                    Get Your Ticket
+                </h5>
+
+                <p>
+                    Receive a clear booking confirmation with
+                    your bus, route, seats and fare details.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+</section>
+
+<!-- ================= CTA ================= -->
+
+<section class="section pt-0">
+
+
+<div class="container">
+
+    <div
+        class="rounded-4 p-5 text-center"
+        style="
+            background:
+            linear-gradient(135deg,#1769ff,#0d47b5);
+            color:white;
+        ">
+
+        <h2 class="fw-bold">
+            Ready for your next journey?
+        </h2>
+
+        <p class="mb-4"
+           style="color:rgba(255,255,255,.8);">
+
+            Book your bus seat today with CloudBus.
+
+        </p>
+
+        {% if session.get("user_id") %}
+
+            <a
+                href="{{ url_for('buses') }}"
+                class="btn btn-light btn-lg px-4">
+
+                Browse Buses →
+
+            </a>
+
+        {% else %}
+
+            <a
+                href="{{ url_for('register') }}"
+                class="btn btn-light btn-lg px-4">
+
+                Create Your Account →
+
+            </a>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+</section>
+
+{% endblock %}

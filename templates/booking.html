@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Book Bus | CloudBus</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+
+    <style>
+
+        body {
+            background: #f4f7fb;
+            min-height: 100vh;
+        }
+
+
+        /* ================= NAVBAR ================= */
+
+        .navbar {
+            background: linear-gradient(
+                135deg,
+                #0d6efd,
+                #084298
+            );
+        }
+
+
+        /* ================= MAIN CARD ================= */
+
+        .booking-card {
+            max-width: 900px;
+            margin: 45px auto;
+            background: white;
+            border-radius: 22px;
+            overflow: hidden;
+            box-shadow: 0 10px 35px rgba(0,0,0,0.08);
+        }
+
+
+        .booking-header {
+            background: linear-gradient(
+                135deg,
+                #0d6efd,
+                #084298
+            );
+
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+
+        .booking-body {
+            padding: 35px;
+        }
+
+
+        /* ================= BUS DETAILS ================= */
+
+        .bus-details {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+
+        /* ================= SEAT AREA ================= */
+
+        .seat-section {
+            margin-top: 25px;
+        }
+
+
+        .seat-section-title {
+            font-weight: 700;
+            font-size: 21px;
+            margin-bottom: 5px;
+        }
+
+
+        .seat-section-subtitle {
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+
+
+        /* ================= LEGEND ================= */
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 14px;
+        }
+
+
+        .legend-box {
+            width: 18px;
+            height: 18px;
+            border-radius: 5px;
+        }
+
+
+        .legend-available {
+            background: white;
+            border: 2px solid #198754;
+        }
+
+
+        .legend-selected {
+            background: #198754;
+        }
+
+
+        .legend-booked {
+            background: #adb5bd;
+        }
+
+
+        /* ================= BUS ================= */
+
+        .bus {
+            width: 430px;
+            max-width: 100%;
+            margin: auto;
+
+            background: #f8f9fa;
+
+            border: 2px solid #dee2e6;
+
+            border-radius: 28px;
+
+            padding: 25px 22px 30px;
+
+            box-shadow:
+                0 8px 25px rgba(0,0,0,0.06);
+        }
+
+
+        /* ================= DRIVER ================= */
+
+        .driver-area {
+            display: flex;
+            justify-content: flex-end;
+
+            margin-bottom: 28px;
+
+            padding-right: 2px;
+        }
+
+
+        .driver-seat {
+            width: 55px;
+            height: 55px;
+
+            background: #adb5bd;
+
+            border: 2px solid #868e96;
+
+            border-radius: 10px;
+
+            color: white;
+
+            display: flex;
+            flex-direction: column;
+
+            align-items: center;
+            justify-content: center;
+
+            cursor: not-allowed;
+        }
+
+
+        .driver-seat-icon {
+            font-size: 20px;
+            line-height: 20px;
+        }
+
+
+        .driver-label {
+            font-size: 8px;
+            font-weight: 700;
+            margin-top: 3px;
+        }
+
+
+        /* ================= SEAT ROW ================= */
+
+        .seat-row {
+
+            display: grid;
+
+            grid-template-columns:
+                1fr
+                1fr
+                35px
+                1fr
+                1fr;
+
+            gap: 10px;
+
+            align-items: center;
+
+            margin-bottom: 12px;
+        }
+
+
+        /* ================= AISLE ================= */
+
+        .aisle {
+            width: 35px;
+            height: 42px;
+        }
+
+
+        /* ================= SEAT ================= */
+
+        .seat {
+
+            width: 100%;
+            height: 42px;
+
+            border-radius: 9px;
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            transition: all 0.18s ease;
+        }
+
+
+        /* AVAILABLE */
+
+        .seat.available {
+
+            background: white;
+
+            color: #198754;
+
+            border: 2px solid #198754;
+
+            cursor: pointer;
+        }
+
+
+        .seat.available:hover {
+
+            background: #e8f5ee;
+
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 4px 10px rgba(25,135,84,0.15);
+        }
+
+
+        /* SELECTED */
+
+        .seat.selected {
+
+            background: #198754 !important;
+
+            border: 2px solid #146c43 !important;
+
+            color: white !important;
+
+            cursor: pointer;
+
+            transform: scale(1.03);
+        }
+
+
+        /* BOOKED */
+
+        .seat.booked {
+
+            background: #adb5bd !important;
+
+            border: 2px solid #868e96 !important;
+
+            color: white !important;
+
+            cursor: not-allowed;
+
+            opacity: 0.95;
+        }
+
+
+        /* ================= LAST ROW ================= */
+
+        .last-row {
+
+            display: flex;
+
+            gap: 10px;
+
+            margin-top: 2px;
+        }
+
+
+        .last-row .seat {
+
+            width: calc(25% - 7.5px);
+        }
+
+
+        /* ================= SELECTED INFORMATION ================= */
+
+        .selected-info {
+
+            background: #e8f5ee;
+
+            border-radius: 12px;
+
+            padding: 15px;
+
+            text-align: center;
+
+            margin-top: 25px;
+        }
+
+
+        #selectedSeatText {
+
+            font-weight: 700;
+
+            color: #198754;
+        }
+
+
+        /* ================= FARE ================= */
+
+        .fare-info {
+
+            background: #e8f3ff;
+
+            border-radius: 14px;
+
+            padding: 20px;
+
+            margin-top: 25px;
+        }
+
+
+        /* ================= MOBILE ================= */
+
+        @media (max-width: 500px) {
+
+            .booking-body {
+                padding: 20px 15px;
+            }
+
+
+            .bus {
+                padding: 20px 12px 25px;
+            }
+
+
+            .seat-row {
+
+                grid-template-columns:
+                    1fr
+                    1fr
+                    25px
+                    1fr
+                    1fr;
+
+                gap: 6px;
+            }
+
+
+            .aisle {
+                width: 25px;
+            }
+
+
+            .seat {
+
+                height: 38px;
+
+                font-size: 11px;
+            }
+
+
+            .driver-seat {
+
+                width: 50px;
+                height: 50px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- ================= NAVBAR ================= -->
+
+<nav class="navbar navbar-dark">
+
+    <div class="container">
+
+        <a
+            href="/buses"
+            class="navbar-brand fw-bold">
+
+            🚌 CloudBus
+
+        </a>
+
+
+        <div>
+
+            <a
+                href="/my-bookings"
+                class="btn btn-light btn-sm me-2">
+
+                My Bookings
+
+            </a>
+
+
+            <a
+                href="/logout"
+                class="btn btn-outline-light btn-sm">
+
+                Logout
+
+            </a>
+
+        </div>
+
+    </div>
+
+</nav>
+
+
+
+<!-- ================= MAIN ================= -->
+
+<div class="container">
+
+
+    <div class="booking-card">
+
+
+        <!-- HEADER -->
+
+        <div class="booking-header">
+
+            <div style="font-size:50px;">
+                🎫
+            </div>
+
+            <h2 class="fw-bold mb-1">
+                Book Your Bus Pass
+            </h2>
+
+            <p class="mb-0">
+                Select your seats and complete your booking.
+            </p>
+
+        </div>
+
+
+
+        <!-- BODY -->
+
+        <div class="booking-body">
+
+
+            <!-- ================= BUS DETAILS ================= -->
+
+            <div class="bus-details">
+
+                <div class="row g-3">
+
+
+                    <div class="col-md-6">
+
+                        <small class="text-muted">
+                            BUS
+                        </small>
+
+                        <h5 class="fw-bold mb-0">
+
+                            🚌 {{ bus["bus_number"] }}
+
+                        </h5>
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <small class="text-muted">
+                            ROUTE
+                        </small>
+
+                        <h5 class="fw-bold mb-0">
+
+                            {{ bus["source"] }}
+
+                            →
+
+                            {{ bus["destination"] }}
+
+                        </h5>
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <small class="text-muted">
+                            FARE PER SEAT
+                        </small>
+
+                        <h5 class="fw-bold text-primary mb-0">
+
+                            ₹{{ "%.2f"|format(bus["fare"]) }}
+
+                        </h5>
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <small class="text-muted">
+                            AVAILABLE SEATS
+                        </small>
+
+                        <h5 class="fw-bold text-success mb-0">
+
+                            {{ bus["available_seats"] }}
+
+                            / 50
+
+                        </h5>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ================= FORM ================= -->
+
+            <form
+                method="POST"
+                id="bookingForm">
+
+
+                <!-- PASSENGER -->
+
+                <div class="mb-4">
+
+                    <label class="form-label fw-semibold">
+
+                        Passenger Name
+
+                    </label>
+
+
+                    <input
+                        type="text"
+                        name="passenger_name"
+                        class="form-control form-control-lg"
+                        placeholder="Enter passenger name"
+                        maxlength="100"
+                        required>
+
+                </div>
+
+
+
+                <!-- ================= SEAT SELECTION ================= -->
+
+                <div class="seat-section">
+
+
+                    <div class="seat-section-title">
+
+                        Select Your Seats
+
+                    </div>
+
+
+                    <div class="seat-section-subtitle">
+
+                        Choose your preferred seats
+
+                    </div>
+
+
+
+                    <!-- LEGEND -->
+
+                    <div class="legend">
+
+
+                        <div class="legend-item">
+
+                            <span
+                                class="legend-box legend-available">
+                            </span>
+
+                            Available
+
+                        </div>
+
+
+                        <div class="legend-item">
+
+                            <span
+                                class="legend-box legend-selected">
+                            </span>
+
+                            Selected
+
+                        </div>
+
+
+                        <div class="legend-item">
+
+                            <span
+                                class="legend-box legend-booked">
+                            </span>
+
+                            Booked
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- ================= BUS SEATING ================= -->
+
+                    <div class="bus">
+
+
+                        <!-- DRIVER AT RIGHT -->
+
+                        <div class="driver-area">
+
+                            <div class="driver-seat">
+
+                                <div class="driver-seat-icon">
+                                    🩶
+                                </div>
+
+                                <div class="driver-label">
+                                    DRIVER
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- ================= SEATS 01 - 48 ================= -->
+
+                        <div class="seat-grid">
+
+
+                            {% for row in range(12) %}
+
+
+                            <div class="seat-row">
+
+
+                                <!-- LEFT SEAT -->
+
+                                {% set seat1 = row * 4 + 1 %}
+
+                                {% if seat1 in booked_seats %}
+
+                                    <button
+                                        type="button"
+                                        class="seat booked"
+                                        disabled>
+
+                                        {{ "%02d"|format(seat1) }}
+
+                                    </button>
+
+                                {% else %}
+
+                                    <button
+                                        type="button"
+                                        class="seat available"
+                                        data-seat="{{ seat1 }}">
+
+                                        {{ "%02d"|format(seat1) }}
+
+                                    </button>
+
+                                {% endif %}
+
+
+
+                                <!-- LEFT SEAT 2 -->
+
+                                {% set seat2 = row * 4 + 2 %}
+
+                                {% if seat2 in booked_seats %}
+
+                                    <button
+                                        type="button"
+                                        class="seat booked"
+                                        disabled>
+
+                                        {{ "%02d"|format(seat2) }}
+
+                                    </button>
+
+                                {% else %}
+
+                                    <button
+                                        type="button"
+                                        class="seat available"
+                                        data-seat="{{ seat2 }}">
+
+                                        {{ "%02d"|format(seat2) }}
+
+                                    </button>
+
+                                {% endif %}
+
+
+
+                                <!-- AISLE -->
+
+                                <div class="aisle"></div>
+
+
+
+                                <!-- RIGHT SEAT 1 -->
+
+                                {% set seat3 = row * 4 + 3 %}
+
+                                {% if seat3 in booked_seats %}
+
+                                    <button
+                                        type="button"
+                                        class="seat booked"
+                                        disabled>
+
+                                        {{ "%02d"|format(seat3) }}
+
+                                    </button>
+
+                                {% else %}
+
+                                    <button
+                                        type="button"
+                                        class="seat available"
+                                        data-seat="{{ seat3 }}">
+
+                                        {{ "%02d"|format(seat3) }}
+
+                                    </button>
+
+                                {% endif %}
+
+
+
+                                <!-- RIGHT SEAT 2 -->
+
+                                {% set seat4 = row * 4 + 4 %}
+
+                                {% if seat4 in booked_seats %}
+
+                                    <button
+                                        type="button"
+                                        class="seat booked"
+                                        disabled>
+
+                                        {{ "%02d"|format(seat4) }}
+
+                                    </button>
+
+                                {% else %}
+
+                                    <button
+                                        type="button"
+                                        class="seat available"
+                                        data-seat="{{ seat4 }}">
+
+                                        {{ "%02d"|format(seat4) }}
+
+                                    </button>
+
+                                {% endif %}
+
+
+                            </div>
+
+
+                            {% endfor %}
+
+
+
+                            <!-- ================= SEATS 49 & 50 ================= -->
+
+                            <div class="last-row">
+
+
+                                {% for seat in [49, 50] %}
+
+
+                                    {% if seat in booked_seats %}
+
+                                        <button
+                                            type="button"
+                                            class="seat booked"
+                                            disabled>
+
+                                            {{ "%02d"|format(seat) }}
+
+                                        </button>
+
+                                    {% else %}
+
+                                        <button
+                                            type="button"
+                                            class="seat available"
+                                            data-seat="{{ seat }}">
+
+                                            {{ "%02d"|format(seat) }}
+
+                                        </button>
+
+                                    {% endif %}
+
+
+                                {% endfor %}
+
+
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- ================= SELECTED SEATS ================= -->
+
+                    <div class="selected-info">
+
+                        <div class="small text-muted">
+
+                            Selected Seats
+
+                        </div>
+
+
+                        <div
+                            id="selectedSeatText">
+
+                            None
+
+                        </div>
+
+
+                        <div class="mt-1">
+
+                            <span class="text-muted">
+                                Total selected:
+                            </span>
+
+                            <strong
+                                id="selectedCount">
+
+                                0
+
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- HIDDEN INPUT -->
+
+                    <input
+                        type="hidden"
+                        name="selected_seats"
+                        id="selectedSeats">
+
+
+
+                    <!-- ================= FARE ================= -->
+
+                    <div class="fare-info">
+
+                        <div class="row align-items-center">
+
+
+                            <div class="col">
+
+                                <div class="fw-bold">
+                                    Fare Calculation
+                                </div>
+
+                                <div class="text-muted small">
+
+                                    <span id="fareSeats">
+                                        0
+                                    </span>
+
+                                    seat(s) ×
+
+                                    ₹{{ "%.2f"|format(bus["fare"]) }}
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="col-auto">
+
+                                <div
+                                    class="fw-bold text-primary fs-3">
+
+                                    ₹<span id="totalFare">
+                                        0.00
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- ================= BUTTONS ================= -->
+
+                    <div class="d-grid gap-2 mt-4">
+
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary btn-lg"
+                            id="confirmButton">
+
+                            Confirm Booking 🎫
+
+                        </button>
+
+
+                        <a
+                            href="/buses"
+                            class="btn btn-outline-secondary">
+
+                            ← Back to Buses
+
+                        </a>
+
+                    </div>
+
+
+                </div>
+
+
+            </form>
+
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- ================= JAVASCRIPT ================= -->
+
+<script>
+
+    const selectedSeats = new Set();
+
+
+    const seatButtons =
+        document.querySelectorAll(
+            ".seat[data-seat]"
+        );
+
+
+    const selectedInput =
+        document.getElementById(
+            "selectedSeats"
+        );
+
+
+    const selectedCount =
+        document.getElementById(
+            "selectedCount"
+        );
+
+
+    const selectedSeatText =
+        document.getElementById(
+            "selectedSeatText"
+        );
+
+
+    const fareSeats =
+        document.getElementById(
+            "fareSeats"
+        );
+
+
+    const totalFare =
+        document.getElementById(
+            "totalFare"
+        );
+
+
+    const farePerSeat =
+        {{ bus["fare"]|float }};
+
+
+
+    /* ================= SELECT SEAT ================= */
+
+    seatButtons.forEach(button => {
+
+
+        button.addEventListener(
+            "click",
+            function() {
+
+
+                const seat =
+                    Number(
+                        this.dataset.seat
+                    );
+
+
+                if (
+                    selectedSeats.has(seat)
+                ) {
+
+
+                    selectedSeats.delete(
+                        seat
+                    );
+
+
+                    this.classList.remove(
+                        "selected"
+                    );
+
+
+                    this.classList.add(
+                        "available"
+                    );
+
+
+                }
+
+                else {
+
+
+                    selectedSeats.add(
+                        seat
+                    );
+
+
+                    this.classList.remove(
+                        "available"
+                    );
+
+
+                    this.classList.add(
+                        "selected"
+                    );
+
+                }
+
+
+                updateSelection();
+
+            }
+
+        );
+
+    });
+
+
+
+    /* ================= UPDATE ================= */
+
+    function updateSelection() {
+
+
+        const seats =
+            Array.from(
+                selectedSeats
+            ).sort(
+                (a, b) => a - b
+            );
+
+
+        selectedInput.value =
+            seats.join(",");
+
+
+        selectedCount.textContent =
+            seats.length;
+
+
+        fareSeats.textContent =
+            seats.length;
+
+
+        totalFare.textContent =
+            (
+                seats.length *
+                farePerSeat
+            ).toFixed(2);
+
+
+
+        if (
+            seats.length === 0
+        ) {
+
+
+            selectedSeatText.textContent =
+                "None";
+
+
+        }
+
+        else {
+
+
+            selectedSeatText.textContent =
+                seats
+                    .map(
+                        seat =>
+                            String(seat)
+                            .padStart(2, "0")
+                    )
+                    .join(", ");
+
+        }
+
+    }
+
+
+
+    /* ================= FORM VALIDATION ================= */
+
+    document
+        .getElementById("bookingForm")
+        .addEventListener(
+            "submit",
+            function(event) {
+
+
+                if (
+                    selectedSeats.size === 0
+                ) {
+
+
+                    event.preventDefault();
+
+
+                    alert(
+                        "Please select at least one seat."
+                    );
+
+
+                    return false;
+
+                }
+
+            }
+
+        );
+
+</script>
+
+
+</body>
+
+</html>

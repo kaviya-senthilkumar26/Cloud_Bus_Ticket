@@ -1,0 +1,909 @@
+html
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard | CloudBus{% endblock %}
+
+{% block content %}
+
+<style>
+    .admin-hero {
+        background: linear-gradient(135deg, #0d6efd, #084298);
+        color: white;
+        border-radius: 22px;
+        padding: 30px;
+        margin-bottom: 25px;
+        box-shadow: 0 12px 30px rgba(13, 110, 253, 0.18);
+    }
+
+    .admin-hero h1 {
+        font-weight: 800;
+    }
+
+    .stat-card {
+        background: white;
+        border: 0;
+        border-radius: 18px;
+        padding: 22px;
+        height: 100%;
+        box-shadow: 0 6px 22px rgba(0, 0, 0, 0.07);
+        transition: 0.2s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        background: #eef5ff;
+        margin-bottom: 12px;
+    }
+
+    .stat-number {
+        font-size: 28px;
+        font-weight: 800;
+    }
+
+    .section-card {
+        background: white;
+        border: 0;
+        border-radius: 20px;
+        box-shadow: 0 6px 22px rgba(0, 0, 0, 0.06);
+        overflow: hidden;
+    }
+
+    .section-header {
+        padding: 22px 24px;
+        border-bottom: 1px solid #edf0f3;
+    }
+
+    .section-body {
+        padding: 24px;
+    }
+
+    .bus-row {
+        transition: 0.2s ease;
+    }
+
+    .bus-row:hover {
+        background: #f8fbff;
+    }
+
+    .status-confirmed {
+        background: #d1e7dd;
+        color: #146c43;
+    }
+
+    .status-cancelled {
+        background: #e9ecef;
+        color: #495057;
+    }
+
+    .table > :not(caption) > * > * {
+        padding: 14px 12px;
+    }
+
+    .empty-state {
+        padding: 45px 20px;
+        text-align: center;
+    }
+
+    .empty-icon {
+        font-size: 45px;
+        margin-bottom: 10px;
+    }
+
+    .admin-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        color: #6c757d;
+    }
+</style>
+
+
+<!-- ================= ADMIN HERO ================= -->
+
+<div class="admin-hero">
+
+    <div class="d-flex flex-column flex-md-row
+                justify-content-between
+                align-items-md-center gap-3">
+
+        <div>
+
+            <div class="small opacity-75 mb-1">
+                CLOUD BUS ADMINISTRATION
+            </div>
+
+            <h1 class="mb-2">
+                Admin Dashboard
+            </h1>
+
+            <p class="mb-0 opacity-75">
+                Manage buses, bookings, users and revenue
+                from one place.
+            </p>
+
+        </div>
+
+        <div class="d-flex gap-2">
+
+            <a href="{{ url_for('buses') }}"
+               class="btn btn-light">
+
+                🚌 View Buses
+
+            </a>
+
+            <a href="{{ url_for('logout') }}"
+               class="btn btn-outline-light">
+
+                Logout
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ================= FLASH MESSAGES ================= -->
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+
+    {% for category, message in messages %}
+
+        <div class="alert alert-{{ category }} alert-dismissible fade show">
+
+            {{ message }}
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+
+    {% endfor %}
+
+{% endwith %}
+
+
+<!-- ================= STATISTICS ================= -->
+
+<div class="row g-4 mb-4">
+
+    <div class="col-6 col-lg-3">
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                👥
+            </div>
+
+            <div class="admin-label">
+                Total Users
+            </div>
+
+            <div class="stat-number">
+                {{ total_users }}
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-6 col-lg-3">
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                🚌
+            </div>
+
+            <div class="admin-label">
+                Total Buses
+            </div>
+
+            <div class="stat-number">
+                {{ total_buses }}
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-6 col-lg-3">
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                🎫
+            </div>
+
+            <div class="admin-label">
+                Total Bookings
+            </div>
+
+            <div class="stat-number">
+                {{ total_bookings }}
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-6 col-lg-3">
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+                💰
+            </div>
+
+            <div class="admin-label">
+                Revenue
+            </div>
+
+            <div class="stat-number">
+
+                ₹{{ "%.0f"|format(revenue) }}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ================= ACTIVE BOOKINGS ================= -->
+
+<div class="row g-4 mb-4">
+
+    <div class="col-lg-4">
+
+        <div class="stat-card">
+
+            <div class="d-flex justify-content-between
+                        align-items-center">
+
+                <div>
+
+                    <div class="admin-label">
+                        Active Bookings
+                    </div>
+
+                    <div class="stat-number">
+                        {{ active_bookings }}
+                    </div>
+
+                </div>
+
+                <div class="stat-icon mb-0">
+                    ✅
+                </div>
+
+            </div>
+
+            <div class="progress mt-3"
+                 style="height:7px;">
+
+                {% if total_bookings > 0 %}
+
+                    {% set active_percent =
+                    (active_bookings / total_bookings * 100)|round %}
+
+                {% else %}
+
+                    {% set active_percent = 0 %}
+
+                {% endif %}
+
+                <div class="progress-bar bg-success"
+                     style="width: {{ active_percent }}%;">
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-lg-8">
+
+        <div class="stat-card">
+
+            <div class="d-flex justify-content-between
+                        align-items-center">
+
+                <div>
+
+                    <div class="admin-label">
+                        Platform Overview
+                    </div>
+
+                    <h5 class="fw-bold mb-1">
+                        CloudBus is running smoothly
+                    </h5>
+
+                    <p class="text-muted mb-0">
+                        All buses use the standard 50-seat
+                        configuration.
+                    </p>
+
+                </div>
+
+                <div class="display-6">
+                    🚀
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ================= ADD BUS ================= -->
+
+<div class="section-card mb-4">
+
+    <div class="section-header">
+
+        <h5 class="fw-bold mb-1">
+            ➕ Add New Bus
+        </h5>
+
+        <small class="text-muted">
+            Add a new 50-seat bus to the CloudBus network.
+        </small>
+
+    </div>
+
+
+    <div class="section-body">
+
+        <form method="POST"
+              action="{{ url_for('add_bus') }}">
+
+            <div class="row g-3">
+
+                <div class="col-md-3">
+
+                    <label class="form-label fw-semibold">
+                        Bus Number
+                    </label>
+
+                    <input
+                        name="bus_number"
+                        class="form-control"
+                        placeholder="CB006"
+                        maxlength="20"
+                        required>
+
+                </div>
+
+
+                <div class="col-md-3">
+
+                    <label class="form-label fw-semibold">
+                        Source
+                    </label>
+
+                    <input
+                        name="source"
+                        class="form-control"
+                        placeholder="Chennai"
+                        required>
+
+                </div>
+
+
+                <div class="col-md-3">
+
+                    <label class="form-label fw-semibold">
+                        Destination
+                    </label>
+
+                    <input
+                        name="destination"
+                        class="form-control"
+                        placeholder="Salem"
+                        required>
+
+                </div>
+
+
+                <div class="col-md-2">
+
+                    <label class="form-label fw-semibold">
+                        Fare
+                    </label>
+
+                    <div class="input-group">
+
+                        <span class="input-group-text">
+                            ₹
+                        </span>
+
+                        <input
+                            name="fare"
+                            type="number"
+                            min="1"
+                            step="0.01"
+                            class="form-control"
+                            placeholder="250"
+                            required>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-1 d-flex align-items-end">
+
+                    <button
+                        class="btn btn-primary w-100">
+
+                        Add
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+
+        <div class="alert alert-info mt-3 mb-0">
+
+            🪑 <strong>Seat configuration:</strong>
+            Every bus automatically receives
+            exactly <strong>50 passenger seats</strong>.
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ================= BUS INVENTORY ================= -->
+
+<div class="section-card mb-4">
+
+    <div class="section-header
+                d-flex justify-content-between
+                align-items-center">
+
+        <div>
+
+            <h5 class="fw-bold mb-1">
+                🚌 Bus Inventory
+            </h5>
+
+            <small class="text-muted">
+                Monitor routes and seat availability.
+            </small>
+
+        </div>
+
+        <span class="badge bg-primary rounded-pill">
+            {{ total_buses }} Buses
+        </span>
+
+    </div>
+
+
+    <div class="section-body p-0">
+
+        {% if buses %}
+
+        <div class="table-responsive">
+
+            <table class="table align-middle mb-0">
+
+                <thead class="table-light">
+
+                    <tr>
+
+                        <th class="ps-4">
+                            Bus
+                        </th>
+
+                        <th>
+                            Route
+                        </th>
+
+                        <th>
+                            Fare
+                        </th>
+
+                        <th>
+                            Availability
+                        </th>
+
+                        <th class="text-end pe-4">
+                            Action
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                {% for bus in buses %}
+
+                    <tr class="bus-row">
+
+                        <td class="ps-4">
+
+                            <div class="fw-bold">
+                                {{ bus["bus_number"] }}
+                            </div>
+
+                            <small class="text-muted">
+                                50-seat bus
+                            </small>
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="fw-semibold">
+                                {{ bus["source"] }}
+                            </span>
+
+                            <span class="text-primary mx-1">
+                                →
+                            </span>
+
+                            <span class="fw-semibold">
+                                {{ bus["destination"] }}
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="fw-bold">
+                                ₹{{ "%.2f"|format(bus["fare"]) }}
+                            </span>
+
+                        </td>
+
+
+                        <td style="min-width:180px;">
+
+                            {% set occupied =
+                            bus["total_seats"] -
+                            bus["available_seats"] %}
+
+                            <div class="d-flex
+                                        justify-content-between
+                                        mb-1">
+
+                                <small>
+                                    {{ bus["available_seats"] }}
+                                    available
+                                </small>
+
+                                <small class="text-muted">
+                                    {{ bus["total_seats"] }} total
+                                </small>
+
+                            </div>
+
+
+                            <div class="progress"
+                                 style="height:7px;">
+
+                                {% if bus["total_seats"] > 0 %}
+
+                                    {% set occupied_percent =
+                                    (occupied /
+                                    bus["total_seats"] * 100)|round %}
+
+                                {% else %}
+
+                                    {% set occupied_percent = 0 %}
+
+                                {% endif %}
+
+                                <div
+                                    class="progress-bar
+                                    {% if bus['available_seats'] == 0 %}
+                                        bg-danger
+                                    {% elif bus['available_seats'] <= 10 %}
+                                        bg-warning
+                                    {% else %}
+                                        bg-success
+                                    {% endif %}"
+                                    style="width:
+                                    {{ occupied_percent }}%;">
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <td class="text-end pe-4">
+
+                            <form
+                                method="POST"
+                                action="{{ url_for('delete_bus', bus_id=bus['id']) }}"
+                                onsubmit="return confirm('Delete {{ bus['bus_number'] }}?');">
+
+                                <button
+                                    class="btn btn-sm btn-outline-danger">
+
+                                    🗑 Delete
+
+                                </button>
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="empty-state">
+
+            <div class="empty-icon">
+                🚌
+            </div>
+
+            <h5 class="fw-bold">
+                No buses available
+            </h5>
+
+            <p class="text-muted">
+                Add your first bus using the form above.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<!-- ================= BOOKINGS ================= -->
+
+<div class="section-card mb-5">
+
+    <div class="section-header
+                d-flex justify-content-between
+                align-items-center">
+
+        <div>
+
+            <h5 class="fw-bold mb-1">
+                🎫 Recent Bookings
+            </h5>
+
+            <small class="text-muted">
+                Monitor customer reservations.
+            </small>
+
+        </div>
+
+        <span class="badge bg-dark rounded-pill">
+            {{ total_bookings }} Total
+        </span>
+
+    </div>
+
+
+    <div class="section-body p-0">
+
+        {% if bookings %}
+
+        <div class="table-responsive">
+
+            <table class="table align-middle mb-0">
+
+                <thead class="table-light">
+
+                    <tr>
+
+                        <th class="ps-4">
+                            Booking
+                        </th>
+
+                        <th>
+                            Passenger
+                        </th>
+
+                        <th>
+                            Bus
+                        </th>
+
+                        <th>
+                            Seats
+                        </th>
+
+                        <th>
+                            Fare
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                {% for booking in bookings %}
+
+                    <tr>
+
+                        <td class="ps-4">
+
+                            <span class="fw-bold">
+                                #CB{{ "%05d"|format(booking["id"]) }}
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <div class="fw-semibold">
+                                {{ booking["name"] }}
+                            </div>
+
+                            <small class="text-muted">
+                                {{ booking["email"] }}
+                            </small>
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="badge bg-light text-dark border">
+
+                                🚌 {{ booking["bus_number"] }}
+
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            {% if booking["seat_numbers"] %}
+
+                                <div class="d-flex flex-wrap gap-1">
+
+                                {% for seat in
+                                booking["seat_numbers"].split(",") %}
+
+                                    <span class="badge bg-success">
+
+                                        {{ seat }}
+
+                                    </span>
+
+                                {% endfor %}
+
+                                </div>
+
+                            {% else %}
+
+                                {{ booking["seats"] }}
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            <strong>
+                                ₹{{ "%.2f"|format(booking["total_fare"]) }}
+                            </strong>
+
+                        </td>
+
+
+                        <td>
+
+                            {% if booking["booking_status"] == "Confirmed" %}
+
+                                <span class="badge status-confirmed">
+
+                                    ✓ Confirmed
+
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge status-cancelled">
+
+                                    Cancelled
+
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="empty-state">
+
+            <div class="empty-icon">
+                🎫
+            </div>
+
+            <h5 class="fw-bold">
+                No bookings yet
+            </h5>
+
+            <p class="text-muted">
+                Customer bookings will appear here.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+{% endblock %}
+
