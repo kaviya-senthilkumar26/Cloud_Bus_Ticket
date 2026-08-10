@@ -109,7 +109,32 @@ def init_db():
             (bus_number, source, destination, fare, total_seats, available_seats)
             VALUES (?, ?, ?, ?, ?, ?)
         """, buses)
+    # Create default admin account if it does not exist
+    admin_email = "kaviyaura@gmail.com"
 
+    admin = conn.execute("""
+        SELECT id
+        FROM users
+        WHERE email = ?
+    """, (admin_email,)).fetchone()
+
+    if not admin:
+        conn.execute("""
+            INSERT INTO users
+            (name, email, password, role)
+            VALUES (?, ?, ?, 'admin')
+        """, (
+            "Kaviya",
+            admin_email,
+            generate_password_hash("Admin@123")
+        ))
+    else:
+        conn.execute("""
+            UPDATE users
+            SET role = 'admin'
+            WHERE email = ?
+        """, (admin_email,))
+        
     conn.commit()
     conn.close()
 
